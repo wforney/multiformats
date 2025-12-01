@@ -2,6 +2,8 @@
 
 This repository contains the projects from several others combined into a single solution and updated to .NET 10 and current NuGet packages as of December 1, 2025. No logical changes have been made other than updates.
 
+---
+
 ## Address
 Provides utilities for working with multi-address formats. Multi-addresses support flexible encoding of network addresses for use in peer-to-peer protocols and distributed applications.
 
