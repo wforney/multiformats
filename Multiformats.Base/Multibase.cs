@@ -1,4 +1,6 @@
-﻿namespace Multiformats.Base;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Multiformats.Base;
 
 /// <summary>
 /// Abstract base class for multibase encoding and decoding operations. Provides static methods for
@@ -224,7 +226,7 @@ public abstract class Multibase
     /// <param name="encoding">Guessed encoding.</param>
     /// <param name="bytes">Decoded bytes.</param>
     /// <returns>True on success (no guarantee it's correct), false on error.</returns>
-    public static bool TryDecode(string input, out MultibaseEncoding encoding, out byte[]? bytes)
+    public static bool TryDecode(string input, out MultibaseEncoding encoding, [NotNullWhen(true)] out byte[]? bytes)
     {
         try
         {

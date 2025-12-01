@@ -104,13 +104,7 @@ public class Multistream : System.IO.Stream
         await _stream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
     }
 
-    /// <summary>
-    /// Releases the unmanaged resources used by the <see cref="Multistream"/> and optionally
-    /// releases the managed resources.
-    /// </summary>
-    /// <param name="disposing">
-    /// true to release both managed and unmanaged resources; false to release only unmanaged resources.
-    /// </param>
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
