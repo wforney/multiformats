@@ -1,0 +1,111 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>Multiformat hash encoding</Description>
+    <Copyright>Copyright © tabrath 2019</Copyright>
+    <AssemblyTitle>Multiformats.Hash</AssemblyTitle>
+    <VersionPrefix>1.5.0</VersionPrefix>
+    <Authors>tabrath</Authors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Multiformats.Hash</AssemblyName>
+    <PackageId>Multiformats.Hash</PackageId>
+    <PackageTags>multiformats multihash sha1 sha3 keccak blake2 shake</PackageTags>
+    <PackageIconUrl>https://cdn.rawgit.com/multiformats/website/116894f6/favicon.png</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/multiformats/cs-multihash/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/multiformats/cs-multihash</RepositoryUrl>
+    <GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="BinaryEncoding" Version="1.5.0" />
+    <PackageReference Include="murmurhash" Version="1.0.3" />
+    <PackageReference Include="System.Composition" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Multiformats.Base\Multiformats.Base.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Algorithms\BLAKE2B.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BLAKE2B.cs</LastGenOutput>
+    </None>
+    <None Update="Algorithms\BLAKE2S.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BLAKE2S.cs</LastGenOutput>
+    </None>
+    <None Update="Algorithms\KECCAK.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>KECCAK.cs</LastGenOutput>
+    </None>
+    <None Update="Algorithms\SHA2.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SHA2.cs</LastGenOutput>
+    </None>
+    <None Update="Algorithms\SHA3.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SHA3.cs</LastGenOutput>
+    </None>
+    <None Update="Algorithms\SHAKE.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SHAKE.cs</LastGenOutput>
+    </None>
+    <None Update="Algorithms\SKEIN.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SKEIN.cs</LastGenOutput>
+    </None>
+    <None Update="HashType.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HashType.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Algorithms\BLAKE2B.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BLAKE2B.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Algorithms\BLAKE2S.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BLAKE2S.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Algorithms\KECCAK.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>KECCAK.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Algorithms\SHA2.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SHA2.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Algorithms\SHA3.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SHA3.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Algorithms\SHAKE.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SHAKE.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Algorithms\SKEIN.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SKEIN.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HashType.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HashType.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>
