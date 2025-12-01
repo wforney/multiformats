@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>Multiformats.Address</AssemblyName>
@@ -24,11 +23,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <VersionPrefix>1.1.1</VersionPrefix>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="BinaryEncoding" Version="1.5.0" />
+    <PackageReference Include="BinaryEncoding" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Multiformats.Hash\Multiformats.Hash.csproj" />
   </ItemGroup>

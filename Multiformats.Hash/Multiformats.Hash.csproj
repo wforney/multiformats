@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -20,10 +19,10 @@
     <GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="BinaryEncoding" Version="1.5.0" />
-    <PackageReference Include="murmurhash" Version="1.0.3" />
-    <PackageReference Include="System.Composition" Version="10.0.0" />
+    <PackageReference Include="Portable.BouncyCastle" />
+    <PackageReference Include="BinaryEncoding" />
+    <PackageReference Include="murmurhash" />
+    <PackageReference Include="System.Composition" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Multiformats.Base\Multiformats.Base.csproj" />
@@ -107,5 +106,4 @@
       <DependentUpon>HashType.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-
 </Project>
