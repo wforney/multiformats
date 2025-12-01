@@ -15,9 +15,9 @@
         {
           "Documents": [
             {
-              "FilePath": "C:\\Users\\WilliamForney\\source\\repos\\wforney\\Multiformats\\Multiformats.Hash.Benchmarks\\SumBenchmarks.cs",
-              "RelativePath": "..\\..\\Multiformats.Hash.Benchmarks\\SumBenchmarks.cs",
-              "FullName": "SumBenchmarks.cs",
+              "FilePath": "C:\\Users\\WilliamForney\\source\\repos\\wforney\\Multiformats\\Multiformats.Hash.CLI\\Multiformats.Hash.CLI.csproj",
+              "RelativePath": "..\\..\\Multiformats.Hash.CLI\\Multiformats.Hash.CLI.csproj",
+              "FullName": "Multiformats.Hash.CLI.csproj",
               "DockedHeight": {
                 "UnitType": "Stretch",
                 "Value": 200
@@ -26,8 +26,8 @@
                 "UnitType": "Stretch",
                 "Value": 200
               },
-              "Line": 18,
-              "Column": 134,
+              "Line": 13,
+              "Column": 1,
               "IsPinned": false,
               "IsActive": true,
               "IsSelected": true
