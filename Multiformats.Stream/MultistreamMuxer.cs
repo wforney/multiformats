@@ -217,7 +217,7 @@ public class MultistreamMuxer
     public bool Handle(System.IO.Stream stream)
     {
         var result = Negotiate(stream);
-        return result?.Handler is not null && result.Handler.Handle(result.Protocol, stream);
+        return result?.Handler is not null && result.Handler.Handle(result.Protocol!, stream);
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public class MultistreamMuxer
     public async Task<bool> HandleAsync(System.IO.Stream stream, CancellationToken cancellationToken)
     {
         var result = await NegotiateAsync(stream, cancellationToken).ConfigureAwait(false);
-        return result?.Handler is not null && await result.Handler.HandleAsync(result.Protocol, stream, cancellationToken).ConfigureAwait(false);
+        return result?.Handler is not null && await result.Handler.HandleAsync(result.Protocol!, stream, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

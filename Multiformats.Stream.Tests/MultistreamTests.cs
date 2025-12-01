@@ -16,8 +16,9 @@ public class MultistreamTests
             _ = mux.NegotiateAsync(a, CancellationToken.None);
 
             var ms = Multistream.Create(b, "/THIS_IS_WRONG");
+            Assert.NotNull(ms);
 
-            _ = await Assert.ThrowsAsync<Exception>(() => ms.WriteAsync(Array.Empty<byte>(), 0, 0));
+            await Assert.ThrowsAsync<Exception>(() => ms.WriteAsync([], 0, 0));
         });
     }
 
@@ -26,14 +27,15 @@ public class MultistreamTests
     {
         return UsePipeWithMuxerAsync(async (a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            var la = Task.Factory.StartNew(() => Multistream.CreateSelect(a, "/c"));
-            var lb = Task.Factory.StartNew(() => Multistream.CreateSelect(b, "/c"));
+            var la = Task.Run(() => Multistream.CreateSelect(a, "/c"));
+            var lb = Task.Run(() => Multistream.CreateSelect(b, "/c"));
 
             var result = await Task.WhenAll(la, lb);
+            Assert.All(result, r => Assert.NotNull(r));
             await VerifyPipeAsync(result[0], result[1]);
         });
     }
@@ -43,16 +45,18 @@ public class MultistreamTests
     {
         return UsePipeWithMuxerAsync(async (a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
             var negotiator = mux.NegotiateAsync(a, CancellationToken.None);
 
             await MultistreamMuxer.SelectProtoOrFailAsync("/a", b, CancellationToken.None);
 
-            var protocol = (await negotiator).Protocol;
-            Assert.Equal("/a", protocol);
+            var selected = await negotiator;
+            Assert.NotNull(selected);
+            Assert.NotNull(selected.Protocol);
+            Assert.Equal("/a", selected.Protocol);
         }, verify: true);
     }
 
@@ -61,13 +65,13 @@ public class MultistreamTests
     {
         return UsePipeWithMuxerAsync(async (a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
             _ = mux.NegotiateAsync(a, CancellationToken.None);
 
-            _ = await Assert.ThrowsAsync<NotSupportedException>(() => MultistreamMuxer.SelectOneOfAsync(["/d", "/e"], b, CancellationToken.None));
+            await Assert.ThrowsAsync<NotSupportedException>(() => MultistreamMuxer.SelectOneOfAsync(["/d", "/e"], b, CancellationToken.None));
         });
     }
 
@@ -76,17 +80,20 @@ public class MultistreamTests
     {
         return UsePipeWithMuxerAsync(async (a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
             var negotiator = mux.NegotiateAsync(a, CancellationToken.None);
 
-            _ = await MultistreamMuxer.SelectOneOfAsync(["/d", "/e", "/c"], b, CancellationToken.None);
+            await MultistreamMuxer.SelectOneOfAsync(["/d", "/e", "/c"], b, CancellationToken.None);
 
-            var result = await Task.WhenAny(negotiator, Task.Delay(500));
-            Assert.Equal(negotiator, result);
-            Assert.Equal("/c", negotiator.Result.Protocol);
+            var finished = await Task.WhenAny(negotiator, Task.Delay(500));
+            Assert.Equal(negotiator, finished);
+            var selected = negotiator.Result;
+            Assert.NotNull(selected);
+            Assert.NotNull(selected.Protocol);
+            Assert.Equal("/c", selected.Protocol);
         }, verify: true);
     }
 
@@ -95,18 +102,20 @@ public class MultistreamTests
     {
         return UsePipeWithMuxerAsync(async (a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            var task = Task.Factory.StartNew(async () =>
+            var task = Task.Run(async () =>
             {
                 var selected = await mux.NegotiateAsync(a, CancellationToken.None);
-
+                Assert.NotNull(selected);
+                Assert.NotNull(selected.Protocol);
                 Assert.Equal("/c", selected.Protocol);
             });
 
             var sel = await MultistreamMuxer.SelectOneOfAsync(["/d", "/e", "/c"], b, CancellationToken.None);
+            Assert.NotNull(sel);
             Assert.Equal("/c", sel);
             Assert.True(task.Wait(500));
         }, verify: true);
@@ -120,7 +129,7 @@ public class MultistreamTests
             _ = mux.AddHandler("/foo", (p, s) => throw new XunitException("should not get executed"));
             _ = mux.AddHandler("/foo", (p, s) => true);
 
-            var task = Task.Factory.StartNew(() => MultistreamMuxer.SelectProtoOrFail("/foo", a));
+            var task = Task.Run(() => MultistreamMuxer.SelectProtoOrFail("/foo", a));
 
             Assert.True(mux.Handle(b));
             Assert.True(task.Wait(500));
@@ -137,9 +146,7 @@ public class MultistreamTests
             var selectTask = MultistreamMuxer.SelectProtoOrFailAsync("/foo", a, CancellationToken.None);
 
             var result = await mux.HandleAsync(b, CancellationToken.None);
-
             await selectTask;
-
             Assert.True(result);
         }, verify: true);
     }
@@ -149,16 +156,15 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
             _ = mux.AddHandler(new TestHandler("/c", (p, s) =>
             {
                 Assert.Equal("/c", p);
-
                 return true;
             }));
 
-            var task = Task.Factory.StartNew(() => MultistreamMuxer.SelectProtoOrFail("/c", a));
+            var task = Task.Run(() => MultistreamMuxer.SelectProtoOrFail("/c", a));
 
             Assert.True(mux.Handle(b));
             Assert.True(task.Wait(500));
@@ -170,11 +176,12 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = Task.Factory.StartNew(() => mux.Negotiate(a));
+            _ = Task.Run(() => mux.Negotiate(a));
 
             var ms = Multistream.Create(b, "/THIS_IS_WRONG");
+            Assert.NotNull(ms);
 
-            _ = Assert.Throws<AggregateException>(() => ms.Write(Array.Empty<byte>(), 0, 0));
+            Assert.Throws<AggregateException>(() => ms.Write([], 0, 0));
         });
     }
 
@@ -183,13 +190,15 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            var task = Task.Factory.StartNew(() =>
+            var task = Task.Run(() =>
             {
                 var selected = mux.Negotiate(a);
+                Assert.NotNull(selected);
+                Assert.NotNull(selected.Protocol);
                 Assert.Equal("/c", selected.Protocol);
 
                 var msg = new byte[5];
@@ -198,6 +207,7 @@ public class MultistreamTests
             });
 
             var lb = Multistream.CreateSelect(b, "/c");
+            Assert.NotNull(lb);
             var outmsg = Encoding.UTF8.GetBytes("hello");
             lb.Write(outmsg, 0, outmsg.Length);
 
@@ -212,13 +222,15 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler("/a", null);
-            _ = mux.AddHandler("/b", null);
-            _ = mux.AddHandler("/c", null);
+            _ = mux.AddHandler("/a", (p,s)=>true);
+            _ = mux.AddHandler("/b", (p,s)=>true);
+            _ = mux.AddHandler("/c", (p,s)=>true);
 
-            var doneTask = Task.Factory.StartNew(() =>
+            var doneTask = Task.Run(() =>
             {
                 var selected = mux.Negotiate(a);
+                Assert.NotNull(selected);
+                Assert.NotNull(selected.Protocol);
                 Assert.Equal("/c", selected.Protocol);
 
                 var msg = Encoding.UTF8.GetBytes("hello");
@@ -226,6 +238,7 @@ public class MultistreamTests
             });
 
             var lb = Multistream.CreateSelect(b, "/c");
+            Assert.NotNull(lb);
             var msgin = new byte[5];
             var received = lb.Read(msgin, 0, msgin.Length);
             Assert.Equal(received, msgin.Length);
@@ -242,14 +255,18 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            var la = Task.Factory.StartNew(() => Multistream.CreateSelect(a, "/c"));
-            var lb = Task.Factory.StartNew(() => Multistream.CreateSelect(b, "/c"));
+            var la = Task.Run(() => Multistream.CreateSelect(a, "/c"));
+            var lb = Task.Run(() => Multistream.CreateSelect(b, "/c"));
 
-            _ = Task.WhenAll(la, lb).ContinueWith(t => VerifyPipe(t.Result[0], t.Result[1]));
+            _ = Task.WhenAll(la, lb).ContinueWith(t =>
+            {
+                Assert.All(t.Result, r => Assert.NotNull(r));
+                VerifyPipe(t.Result[0], t.Result[1]);
+            });
         });
     }
 
@@ -267,37 +284,43 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            var negotiator = Task.Factory.StartNew(() => mux.Negotiate(a));
+            var negotiator = Task.Run(() => mux.Negotiate(a));
 
             MultistreamMuxer.SelectProtoOrFail("/a", b);
 
             var result = Task.WhenAny(negotiator, Task.Delay(500)).Result;
             Assert.True(result == negotiator);
-            Assert.Equal("/a", negotiator.Result.Protocol);
+            var selected = negotiator.Result;
+            Assert.NotNull(selected);
+            Assert.NotNull(selected.Protocol);
+            Assert.Equal("/a", selected.Protocol);
         }, verify: true);
     }
+
+    private static readonly string[] actual = ["/a", "/c"];
+    private static readonly string[] actualArray = ["/a", "/b", "/c"];
 
     [Fact]
     public void TestRemoveProtocol()
     {
         var mux = new MultistreamMuxer();
-        _ = mux.AddHandler(new TestHandler("/a", null));
-        _ = mux.AddHandler(new TestHandler("/b", null));
-        _ = mux.AddHandler(new TestHandler("/c", null));
+        _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+        _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+        _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
         var protos = mux.Protocols.ToList();
         protos.Sort();
-        Assert.Equal(protos, new[] { "/a", "/b", "/c" });
+        Assert.Equal(protos, actualArray);
 
         mux.RemoveHandler("/b");
 
-        protos = mux.Protocols.ToList();
+        protos = [.. mux.Protocols];
         protos.Sort();
-        Assert.Equal(protos, new[] { "/a", "/c" });
+        Assert.Equal(protos, actual);
     }
 
     [Fact]
@@ -305,11 +328,11 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            _ = Task.Factory.StartNew(() => mux.Negotiate(a));
+            _ = Task.Run(() => mux.Negotiate(a));
 
             _ = Assert.Throws<NotSupportedException>(() => MultistreamMuxer.SelectOneOf(["/d", "/e"], b));
         });
@@ -320,18 +343,20 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            var negotiator = Task.Factory.StartNew(() => mux.Negotiate(a));
+            var negotiator = Task.Run(() => mux.Negotiate(a));
 
             _ = MultistreamMuxer.SelectOneOf(["/d", "/e", "/c"], b);
 
             var result = Task.WhenAny(negotiator, Task.Delay(500)).Result;
             Assert.True(result == negotiator);
-            var protocol = negotiator.Result.Protocol;
-            Assert.Equal("/c", protocol);
+            var selected = negotiator.Result;
+            Assert.NotNull(selected);
+            Assert.NotNull(selected.Protocol);
+            Assert.Equal("/c", selected.Protocol);
         }, verify: true);
     }
 
@@ -340,18 +365,20 @@ public class MultistreamTests
     {
         UsePipeWithMuxer((a, b, mux) =>
         {
-            _ = mux.AddHandler(new TestHandler("/a", null));
-            _ = mux.AddHandler(new TestHandler("/b", null));
-            _ = mux.AddHandler(new TestHandler("/c", null));
+            _ = mux.AddHandler(new TestHandler("/a", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/b", (p,s)=>true));
+            _ = mux.AddHandler(new TestHandler("/c", (p,s)=>true));
 
-            var task = Task.Factory.StartNew(() =>
+            var task = Task.Run(() =>
             {
                 var selected = mux.Negotiate(a);
-
+                Assert.NotNull(selected);
+                Assert.NotNull(selected.Protocol);
                 Assert.Equal("/c", selected.Protocol);
             });
 
             var sel = MultistreamMuxer.SelectOneOf(["/d", "/e", "/c"], b);
+            Assert.NotNull(sel);
             Assert.Equal("/c", sel);
             Assert.True(task.Wait(500));
         }, verify: true);
@@ -385,29 +412,27 @@ public class MultistreamTests
     private static void SubTestLs(params string[] protos)
     {
         var mr = new MultistreamMuxer();
-        var mset = new Dictionary<string, bool>();
+        var mset = new HashSet<string>(protos);
         foreach (var proto in protos)
         {
-            _ = mr.AddHandler(proto, null);
-            mset.Add(proto, true);
+            mr.AddHandler(proto, (p,s)=>true);
         }
 
         using var buf = new MemoryStream();
         mr.Ls(buf);
-        _ = buf.Seek(0, SeekOrigin.Begin);
+        buf.Seek(0, SeekOrigin.Begin);
 
-        var count = Binary.Varint.Read(buf, out
-        ulong n);
+        var count = Binary.Varint.Read(buf, out ulong n);
         Assert.Equal((int)n, buf.Length - count);
 
-        _ = Binary.Varint.Read(buf, out
-        ulong nitems);
+        Binary.Varint.Read(buf, out ulong nitems);
         Assert.Equal((int)nitems, protos.Length);
 
         for (var i = 0; i < (int)nitems; i++)
         {
             var token = MultistreamMuxer.ReadNextToken(buf);
-            Assert.True(mset.ContainsKey(token));
+            Assert.False(string.IsNullOrEmpty(token));
+            Assert.Contains(token, mset);
         }
 
         Assert.Equal(buf.Position, buf.Length);
@@ -417,20 +442,12 @@ public class MultistreamTests
     {
         RunWithConnectedNetworkStreamsAsync((a, b) =>
         {
-            try
+            action(a, b);
+            if (verify)
             {
-                action(a, b);
-                if (verify)
-                {
-                    VerifyPipe(a, b);
-                }
-
-                return Task.CompletedTask;
+                VerifyPipe(a, b);
             }
-            catch (Exception e)
-            {
-                return Task.FromException(e);
-            }
+            return Task.CompletedTask;
         }).Wait();
     }
 
@@ -456,7 +473,7 @@ public class MultistreamTests
     {
         var mes = new byte[1024];
         new Random().NextBytes(mes);
-        _ = Task.Factory.StartNew(() =>
+        Task.Run(() =>
         {
             a.Write(mes, 0, mes.Length);
             b.Write(mes, 0, mes.Length);
@@ -484,35 +501,29 @@ public class MultistreamTests
         await Task.WhenAll(aw, bw).ConfigureAwait(false);
 
         var buf = new byte[mes.Length];
-        var n = await a.ReadAsync(buf, 0, buf.Length).ConfigureAwait(false);
+        var n = await a.ReadAsync(buf).ConfigureAwait(false);
         Assert.Equal(n, buf.Length);
         Assert.Equal(buf, mes);
 
-        n = await b.ReadAsync(buf, 0, buf.Length).ConfigureAwait(false);
+        n = await b.ReadAsync(buf).ConfigureAwait(false);
         Assert.Equal(n, buf.Length);
         Assert.Equal(buf, mes);
     }
 
-    private class TestHandler : IMultistreamHandler
+    private class TestHandler(string protocol, Func<string, System.IO.Stream, bool> action) : IMultistreamHandler
     {
-        private readonly Func<string, System.IO.Stream, bool> _action;
+        private readonly Func<string, System.IO.Stream, bool> _action = action ?? throw new ArgumentNullException(nameof(action));
 
-        public TestHandler(string protocol, Func<string, System.IO.Stream, bool> action)
+        public string Protocol { get; } = protocol ?? throw new ArgumentNullException(nameof(protocol));
+
+        public bool Handle(string protocol, System.IO.Stream stream)
         {
-            _action = action;
-            Protocol = protocol;
+            ArgumentNullException.ThrowIfNull(protocol);
+            ArgumentNullException.ThrowIfNull(stream);
+            return _action(protocol, stream);
         }
 
-        public string Protocol { get; }
-
-        public bool Handle(string protocol, System.IO.Stream stream) => _action?.Invoke(protocol, stream) ?? false;
-
-        public Task<bool> HandleAsync(string protocol, System.IO.Stream stream, CancellationToken cancellationToken)
-        {
-            return Task.Factory.FromAsync(
-                (p, s, cb, o) => ((Func<string, System.IO.Stream, bool>)o).BeginInvoke(p, s, cb, o),
-                (ar) => ((Func<string, System.IO.Stream, bool>)ar.AsyncState).EndInvoke(ar),
-                protocol, stream, state: _action);
-        }
+        public Task<bool> HandleAsync(string protocol, System.IO.Stream stream, CancellationToken cancellationToken) =>
+            Task.Run(() => Handle(protocol, stream), cancellationToken);
     }
 }
