@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Multiformats.Address.Tests/Multiformats.Address.Tests.csproj" Id="b188c3ac-1fb9-4205-8b6c-61a73fdce3f3" />
   <Project Path="Multiformats.Address/Multiformats.Address.csproj" Id="ebc36262-c8d1-4304-a2c4-479405ca56c4" />
   <Project Path="Multiformats.Base.Tests/Multiformats.Base.Tests.csproj" Id="fa6dd05c-6b75-4fea-94f6-bace552b2f2e" />
   <Project Path="Multiformats.Base/Multiformats.Base.csproj" Id="bc41ecc0-170f-4f73-9672-c0fe13bd512a" />
