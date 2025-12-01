@@ -22,7 +22,9 @@
 	<ItemGroup>
 		<PackageReference Include="BinaryEncoding" Version="1.5.0" />
 		<PackageReference Include="Multiformats.Address" Version="1.1.1" />
-		<PackageReference Include="Multiformats.Base" Version="2.0.2" />
 		<PackageReference Include="Multiformats.Hash" Version="1.5.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Multiformats.Base\Multiformats.Base.csproj" />
 	</ItemGroup>
 </Project>
