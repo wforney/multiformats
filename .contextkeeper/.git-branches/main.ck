@@ -15,9 +15,9 @@
         {
           "Documents": [
             {
-              "FilePath": "C:\\Users\\WilliamForney\\source\\repos\\wforney\\Multiformats\\Multiformats.Hash.CLI\\Multiformats.Hash.CLI.csproj",
-              "RelativePath": "..\\..\\Multiformats.Hash.CLI\\Multiformats.Hash.CLI.csproj",
-              "FullName": "Multiformats.Hash.CLI.csproj",
+              "FilePath": "C:\\Users\\WilliamForney\\source\\repos\\wforney\\Multiformats\\Multiformats.Address\\Multiformats.Address.csproj",
+              "RelativePath": "..\\..\\Multiformats.Address\\Multiformats.Address.csproj",
+              "FullName": "Multiformats.Address.csproj",
               "DockedHeight": {
                 "UnitType": "Stretch",
                 "Value": 200
@@ -26,7 +26,7 @@
                 "UnitType": "Stretch",
                 "Value": 200
               },
-              "Line": 13,
+              "Line": 20,
               "Column": 1,
               "IsPinned": false,
               "IsActive": true,
