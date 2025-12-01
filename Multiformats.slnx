@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj" />
+  <Project Path="Multiformats.Stream/Multiformats.Stream.csproj" />
+</Solution>
