@@ -1,6 +1,8 @@
 <Solution>
   <Project Path="Multiformats.Base.Tests/Multiformats.Base.Tests.csproj" Id="fa6dd05c-6b75-4fea-94f6-bace552b2f2e" />
   <Project Path="Multiformats.Base/Multiformats.Base.csproj" Id="bc41ecc0-170f-4f73-9672-c0fe13bd512a" />
+  <Project Path="Multiformats.Hash.Benchmarks/Multiformats.Hash.Benchmarks.csproj" Id="b7db255e-22bf-46af-a938-5e00965801ad" />
+  <Project Path="Multiformats.Hash/Multiformats.Hash.csproj" Id="f2721da0-cfdc-43b9-bc53-c523c8b833e0" />
   <Project Path="Multiformats.Stream.Tests/Multiformats.Stream.Tests.csproj" />
   <Project Path="Multiformats.Stream/Multiformats.Stream.csproj" />
 </Solution>
